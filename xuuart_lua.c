@@ -246,10 +246,10 @@ static int l_sharp2_get(lua_State *L)
 {
   const char *pc_com = lua_tostring(L, 1);
 
-	float f_data = 0;
+	float f_data = -1.0;
 	char pc_ret[50];
   int len = sharp2_rx_full(&f_data, pc_ret, pc_com);
-  if (len = 0) f_data = 0;
+  if (len = 0) f_data = -1.0;
   //DBG("get: %f, %s\n", f_data, pc_ret);
 
   lua_pushnumber(L, f_data);
@@ -258,21 +258,6 @@ static int l_sharp2_get(lua_State *L)
   return 2;
 }
 
-static int l_reboot(lua_State *L)
-{
- 	do_reboot();
-
-  return 0;
-}
-
-static int l_delay_ms (lua_State *L)
-{
-  int num = lua_tonumber(L, 1);
-
-  delay_ms(num);
-
-  return 0;
-}
 //-------------------------------------------------------------------------------------
 //动态库的函数列表，将函数注册为双引号内部的名字，调用时用双引号内的名字来调函数
 static const struct luaL_reg func[] = {
@@ -283,8 +268,6 @@ static const struct luaL_reg func[] = {
 	{"flush", mylua_flush},
 	{"tx_rx", mylua_tx_rx},
 	{"sharp2_get", l_sharp2_get},
-	{"reboot", l_reboot},
-	{"delay_ms", l_delay_ms},
 
 	{NULL, NULL}
 };

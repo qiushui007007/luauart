@@ -521,19 +521,6 @@ void delay_ms(int len)
 }
 
 //--- sharp2的接收数据
-void do_reboot(void)
-{
-	fprintf(stderr, "Rebooting ...\n");
-	fflush(stderr);
-
-	/* try regular reboot method first */
-	system("/sbin/reboot");
-	sleep(2);
-
-	/* if we're still alive at this point, force the kernel to reboot */
-	//syscall(SYS_reboot, LINUX_REBOOT_MAGIC1, LINUX_REBOOT_MAGIC2, LINUX_REBOOT_CMD_RESTART, NULL);
-}
-
 //char sharp2_rx_full(char *pc_rx, char *port_zstr)
 int sharp2_rx_full(float *f_data, char *pc_ret, char *port_zstr)
 {
@@ -552,13 +539,14 @@ int sharp2_rx_full(float *f_data, char *pc_ret, char *port_zstr)
 
    SetBaudCOM(portnum, PARMSET_2400);
    FlushCOM(portnum);
-   timeout_put(100);	//超时时间, ms
+   timeout_put(200);	//超时时间(单位ms), 原为100
 
 #if 0
    us_len_ret = ReadCOM_xu(portnum, pc_rx);
 
 #else
-   us_len = 14;
+   us_len = 14;	//原OK.
+   //us_len = 21;	//因为要丢弃无效的00数据, 增加数据长度. 14-8
    us_len_ret = ReadCOM(portnum, us_len, pc_rx);
 #endif
    pc_rx[us_len_ret] = '\0';
@@ -568,20 +556,25 @@ int sharp2_rx_full(float *f_data, char *pc_ret, char *port_zstr)
    DBG("rx: %s\n", pc_tmp);
    //rx: AA0011006E7FFFAA0011006E7FFF
 
-   //--- 解析数据
+   //解析数据, 格式有效但数据为0则抛弃.
    for (i=0; i<us_len; i++) {
    	if ( (pc_rx[i] == 0xaa) && (pc_rx[i+6] == 0xff) ) {
-   		unsigned char puc_tmp = (pc_rx[i+1] + pc_rx[i+2] + pc_rx[i+3] + pc_rx[i+4]) & 0xff;
-   		DBG("i = %d, %d, sum = %d\n", i, pc_rx[i+5], puc_tmp);
-   		if (puc_tmp == pc_rx[i+5]) {
-   			f_tmp = (pc_rx[i+1] * 256 + pc_rx[i+2]) * 5;
-   			f_tmp = f_tmp / 1024;
-   			*f_data = f_tmp;	//返回希望数据
-   			strcpy(pc_ret, pc_tmp + i*2);
-   			pc_ret[14] = '\0';
-   			DBG("get: %f, %s\n", *f_data, pc_ret);
+   		if ((pc_rx[i+1] == 0) && (pc_rx[i+2] == 0)) {
+   			i += 7;	//有效数据全为0则从下个位置开始
+   		}
+   		else {	//有效数据不全为0, 解析开始
+	   		unsigned char puc_tmp = (pc_rx[i+1] + pc_rx[i+2] + pc_rx[i+3] + pc_rx[i+4]) & 0xff;
+	   		DBG("i = %d, %d, sum = %d\n", i, pc_rx[i+5], puc_tmp);
+	   		if (puc_tmp == pc_rx[i+5]) {
+	   			f_tmp = (pc_rx[i+1] * 256 + pc_rx[i+2]) * 5;
+	   			f_tmp = f_tmp / 1024;
+	   			*f_data = f_tmp;			//返回运算的真实数据
+	   			strcpy(pc_ret, pc_tmp + i*2);	//返回有效的接收到的字符串以查看
+	   			pc_ret[14] = '\0';
+	   			DBG("get: %f, %s\n", *f_data, pc_ret);
 
-				return us_len_ret;
+					return us_len_ret;
+				}
 			}
    	}
    }
