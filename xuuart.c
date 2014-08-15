@@ -545,8 +545,8 @@ int sharp2_rx_full(float *f_data, char *pc_ret, char *port_zstr)
    us_len_ret = ReadCOM_xu(portnum, pc_rx);
 
 #else
-   us_len = 14;	//原OK.
-   //us_len = 21;	//因为要丢弃无效的00数据, 增加数据长度. 14-8
+   //us_len = 14;	//OK.
+   us_len = 21;	//OK.
    us_len_ret = ReadCOM(portnum, us_len, pc_rx);
 #endif
    pc_rx[us_len_ret] = '\0';
