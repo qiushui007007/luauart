@@ -29,7 +29,7 @@ while invalid_times < retry_times do
 		xucommon.delay_ms(1000)
 		print("invalid_times = " .. tostring(invalid_times))
 
-		-- 发送Email
+		-- 异常时发送Email以方便统计
 		to_id = "qiushui_007@foxmail.com"
 		subject = "sharp2 read dead"
 		str_time = os.date("%Y") .. "-" .. os.date("%m") .. "-" .. os.date("%d") .. " " .. os.date("%X")
@@ -51,14 +51,6 @@ while invalid_times < retry_times do
 		str_data = "PM2.5 = " .. tostring(f_data) .. ", str = " .. pc_ret .. ", vo = " .. tostring(f_vo)
 		print(str_data)
 
-		-- 根据情况
-		to_id = "qiushui_007@foxmail.com"
-		subject = "sharp2 read OK"
-		str_time = os.date("%Y") .. "-" .. os.date("%m") .. "-" .. os.date("%d") .. " " .. os.date("%X")
-		str_ip = xucommon.get_local_ip("auto")
-		content = str_time .. ", " .. str_data
-		xucommon.mail_tx(to_id, subject, content)
-
 		break
 	end
 
@@ -78,7 +70,7 @@ if f_data > 0.0 and f_data < 560 then
       source = ltn12.source.string(reqbody),
       headers = {
         ["userkey"] = "36be8ff22f794f1e8a0bee3336eef237",
-        ["Content-Type"] = "application/x-www-form-urlencoded",
+        --["Content-Type"] = "application/x-www-form-urlencoded",
         ["content-length"] = string.len(reqbody),
         ["Connection"] = "Close"
       },
@@ -100,7 +92,7 @@ if f_data > 0.0 and f_data < 560 then
       source = ltn12.source.string(reqbody),
       headers = {
         ["U-ApiKey"] = "729d1ba15b26b6a48f4807ef3f2f4df4",
-        ["Content-Type"] = "application/x-www-form-urlencoded",
+        --["Content-Type"] = "application/x-www-form-urlencoded",
         ["content-length"] = string.len(reqbody),
         ["Connection"] = "Close"
       },
