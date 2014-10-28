@@ -30,14 +30,21 @@ while invalid_times < retry_times do
 		print("invalid_times = " .. tostring(invalid_times))
 
 		-- 异常时发送Email以方便统计
-		to_id = "qiushui_007@foxmail.com"
-		subject = "sharp2 read dead"
 		str_time = os.date("%Y") .. "-" .. os.date("%m") .. "-" .. os.date("%d") .. " " .. os.date("%X")
 		str_ip = xucommon.get_local_ip("auto")
-		content = str_time .. ", local_ip: " .. str_ip .. "\nwww.lewei50.com/u/g/2375" .. "\nwww.yeelink.net/devices/4420"
-		xucommon.mail_tx(to_id, subject, content)
 
-		if invalid_times >= retry_times then
+		if invalid_times < retry_times then
+			to_id = "qiushui_007@foxmail.com"
+			subject = "sharp2 read error"
+			content = str_time .. ", local_ip: " .. str_ip .. "\nwww.lewei50.com/u/g/2375" .. "\nwww.yeelink.net/devices/4420"
+			xucommon.mail_tx(to_id, subject, content)
+
+		else
+			to_id = "qiushui_007@foxmail.com"
+			subject = "sharp2 reboot"
+			content = str_time .. ", local_ip: " .. str_ip
+			xucommon.mail_tx(to_id, subject, content)
+
 			xucommon.reboot()	--重启, 你懂的
 		end
 
