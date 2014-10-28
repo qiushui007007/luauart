@@ -34,14 +34,17 @@ portnum = uart.open(device_name)
 
 if portnum >= 0 then
 	--uart.buad_set(portnum, 6)
-	uart.buad_set(portnum, 8)
+	uart.buad_set(portnum, 0)
 	uart.flush(portnum)
-	timeout_ms = 60
+	--wifi温湿度, 必须>=200
+	timeout_ms = 200
 	uart.timeout(timeout_ms)
 
 	--str1 = "1234567890"
 	--str1 = string.char(0xf1, 0xf2, 0xf3, 0xf4, 0x05, 0x06, 0x07, 0x08)
-	str1 = string.char(0x00, 0xf2, 0xf3, 0xf4, 0x05, 0x06, 0x07, 0x08)
+	--str1 = string.char(0x00, 0xf2, 0xf3, 0xf4, 0x05, 0x06, 0x07, 0x08)
+	--wifi温湿度, 读取湿度和温度
+	str1 = string.char(0x01, 0x03, 0x90, 0x01, 0x00, 0x02, 0xb8, 0xcb)
 	len = string.len(str1)
 	print("tx: " .. len .. ", " .. hex(str1))
 	len_ret, str_ret = uart.tx_rx(portnum, str1, len)
